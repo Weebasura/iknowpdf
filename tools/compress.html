@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compress PDF — I Know PDF</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body class="tool-page">
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="logo"><span class="logo-icon">⬡</span>I Know <span class="logo-accent">PDF</span></a>
+    </div>
+  </header>
+  <div class="tool-hero">
+    <a href="../index.html" class="back-link">← All Tools</a>
+    <div class="tool-hero-icon">🗜️</div>
+    <h1>Compress PDF</h1>
+    <p>Reduce PDF file size by re-rendering pages at a lower resolution.</p>
+  </div>
+
+  <div class="tool-workspace" id="workspace">
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept=".pdf" />
+      <div class="drop-icon">📄</div>
+      <h3>Drop your PDF here</h3>
+      <span class="drop-cta">Select PDF</span>
+    </div>
+
+    <div class="options-card" id="opts" style="display:none">
+      <h3>Compression Level</h3>
+      <div class="option-group">
+        <label>Quality (lower = smaller file)</label>
+        <div class="radio-group" id="qualGroup">
+          <label class="radio-btn"><input type="radio" name="qual" value="screen">📱 Low (screen)</label>
+          <label class="radio-btn selected"><input type="radio" name="qual" value="ebook" checked>📚 Medium (ebook)</label>
+          <label class="radio-btn"><input type="radio" name="qual" value="prepress">🖨️ High (print)</label>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--text-muted);margin-top:8px">Note: This tool re-renders pages as images. Text-based PDFs will become image PDFs. Best for PDFs with many images.</p>
+    </div>
+    <button class="btn-process" id="btnCompress" disabled>🗜️ Compress PDF</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="../js/utils.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    let currentFile = null;
+    const dropZone = document.getElementById('dropZone');
+    const btnCompress = document.getElementById('btnCompress');
+    const workspace = document.getElementById('workspace');
+
+    document.getElementById('fileInput').addEventListener('change', function() { if(this.files[0]) enable(this.files[0]); });
+    setupDropZone(dropZone, files => { if(files[0]) enable(files[0]); });
+    document.querySelectorAll('#qualGroup .radio-btn').forEach(b => b.addEventListener('click', () => {
+      document.querySelectorAll('#qualGroup .radio-btn').forEach(x => x.classList.remove('selected'));
+      b.classList.add('selected');
+    }));
+
+    function enable(file) {
+      currentFile = file;
+      document.getElementById('opts').style.display = 'block';
+      btnCompress.disabled = false;
+      dropZone.querySelector('h3').textContent = file.name;
+    }
+
+    const qualMap = { screen: { scale: 0.75, q: 0.55 }, ebook: { scale: 1.0, q: 0.72 }, prepress: { scale: 1.5, q: 0.88 } };
+
+    btnCompress.addEventListener('click', async () => {
+      if (!currentFile) return;
+      btnCompress.textContent = 'Compressing…'; btnCompress.disabled = true;
+      try {
+        const qual = document.querySelector('#qualGroup .radio-btn.selected input').value;
+        const { scale, q } = qualMap[qual];
+        const bytes = await currentFile.arrayBuffer();
+        const pdfjs = await pdfjsLib.getDocument({ data: bytes.slice() }).promise;
+        const { PDFDocument } = PDFLib;
+        const newDoc = await PDFDocument.create();
+
+        for (let i = 1; i <= pdfjs.numPages; i++) {
+          const page = await pdfjs.getPage(i);
+          const vp = page.getViewport({ scale });
+          const canvas = document.createElement('canvas');
+          canvas.width = vp.width; canvas.height = vp.height;
+          await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+          const dataUrl = canvas.toDataURL('image/jpeg', q);
+          const res = await fetch(dataUrl);
+          const imgBytes = await res.arrayBuffer();
+          const img = await newDoc.embedJpg(imgBytes);
+          const newPage = newDoc.addPage([vp.width, vp.height]);
+          newPage.drawImage(img, { x: 0, y: 0, width: vp.width, height: vp.height });
+        }
+        const out = await newDoc.save();
+        const blob = new Blob([out], {type:'application/pdf'});
+        const origSize = currentFile.size;
+        const ratio = Math.round((1 - blob.size / origSize) * 100);
+        showResult(workspace, () => downloadBlob(blob, 'compressed.pdf'),
+          `✅ Compressed by ${ratio > 0 ? ratio : 0}%!`,
+          `${formatBytes(origSize)} → ${formatBytes(blob.size)}`);
+        showToast(`Reduced by ${ratio > 0 ? ratio : 0}%!`);
+      } catch(e) { showError(workspace, 'Error: ' + e.message); }
+      btnCompress.textContent = '🗜️ Compress PDF'; btnCompress.disabled = false;
+    });
+  </script>
+</body>
+</html>

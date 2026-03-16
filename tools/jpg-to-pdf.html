@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JPG to PDF — I Know PDF</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body class="tool-page">
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="logo"><span class="logo-icon">⬡</span>I Know <span class="logo-accent">PDF</span></a>
+    </div>
+  </header>
+  <div class="tool-hero">
+    <a href="../index.html" class="back-link">← All Tools</a>
+    <div class="tool-hero-icon">📄</div>
+    <h1>JPG to PDF</h1>
+    <p>Combine one or more images into a single PDF file.</p>
+  </div>
+
+  <div class="tool-workspace" id="workspace">
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" multiple accept="image/*" />
+      <div class="drop-icon">🖼️</div>
+      <h3>Drop your images here</h3>
+      <p>JPG, PNG, WEBP, GIF supported</p>
+      <span class="drop-cta">Select Images</span>
+    </div>
+    <div class="file-list" id="fileList"></div>
+    <div class="options-card" id="opts" style="display:none">
+      <h3>Options</h3>
+      <div class="option-group">
+        <label>Page Size</label>
+        <select id="pageSize">
+          <option value="fit">Fit to Image</option>
+          <option value="a4">A4</option>
+          <option value="letter">Letter</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-process" id="btnConvert" disabled>📄 Convert to PDF</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="../js/utils.js"></script>
+  <script>
+    const files = [];
+    const dropZone = document.getElementById('dropZone');
+    const fileList = document.getElementById('fileList');
+    const btnConvert = document.getElementById('btnConvert');
+    const workspace = document.getElementById('workspace');
+
+    document.getElementById('fileInput').addEventListener('change', function() { addFiles(Array.from(this.files)); });
+    setupDropZone(dropZone, addFiles, true, 'image/*');
+
+    function addFiles(newFiles) {
+      newFiles.forEach(f => {
+        if (!f.type.startsWith('image/')) return;
+        files.push(f);
+        const item = createFileItem(f, updateBtn);
+        item.querySelector('.file-icon-sm').textContent = '🖼️';
+        fileList.appendChild(item);
+      });
+      updateBtn();
+    }
+    function updateBtn() {
+      btnConvert.disabled = files.length === 0;
+      document.getElementById('opts').style.display = files.length ? 'block' : 'none';
+    }
+
+    btnConvert.addEventListener('click', async () => {
+      if (!files.length) return;
+      btnConvert.textContent = 'Converting…'; btnConvert.disabled = true;
+      try {
+        const { PDFDocument } = PDFLib;
+        const doc = await PDFDocument.create();
+        const pageSize = document.getElementById('pageSize').value;
+        for (const file of files) {
+          const bytes = await file.arrayBuffer();
+          let img;
+          if (file.type === 'image/jpeg') img = await doc.embedJpg(bytes);
+          else {
+            // Convert to PNG via canvas
+            const url = URL.createObjectURL(file);
+            const image = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+            const canvas = document.createElement('canvas');
+            canvas.width = image.naturalWidth; canvas.height = image.naturalHeight;
+            canvas.getContext('2d').drawImage(image, 0, 0);
+            const pngBytes = await new Promise(res => canvas.toBlob(b => b.arrayBuffer().then(res), 'image/png'));
+            img = await doc.embedPng(pngBytes);
+            URL.revokeObjectURL(url);
+          }
+          let w, h;
+          if (pageSize === 'a4') { w = 595; h = 842; }
+          else if (pageSize === 'letter') { w = 612; h = 792; }
+          else { w = img.width; h = img.height; }
+          const page = doc.addPage([w, h]);
+          const scale = Math.min(w / img.width, h / img.height);
+          const dw = img.width * scale, dh = img.height * scale;
+          page.drawImage(img, { x: (w - dw) / 2, y: (h - dh) / 2, width: dw, height: dh });
+        }
+        const out = await doc.save();
+        const blob = new Blob([out], {type:'application/pdf'});
+        showResult(workspace, () => downloadBlob(blob, 'images.pdf'), `✅ ${files.length} image(s) → PDF!`, formatBytes(blob.size));
+        showToast('Converted to PDF!');
+      } catch(e) { showError(workspace, 'Error: ' + e.message); }
+      btnConvert.textContent = '📄 Convert to PDF'; btnConvert.disabled = false;
+    });
+  </script>
+</body>
+</html>

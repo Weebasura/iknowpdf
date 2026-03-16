@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF to JPG — I Know PDF</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body class="tool-page">
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="logo"><span class="logo-icon">⬡</span>I Know <span class="logo-accent">PDF</span></a>
+    </div>
+  </header>
+  <div class="tool-hero">
+    <a href="../index.html" class="back-link">← All Tools</a>
+    <div class="tool-hero-icon">🖼️</div>
+    <h1>PDF to JPG</h1>
+    <p>Convert each PDF page into a high-quality JPG image.</p>
+  </div>
+
+  <div class="tool-workspace" id="workspace">
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept=".pdf" />
+      <div class="drop-icon">📄</div>
+      <h3>Drop your PDF here</h3>
+      <span class="drop-cta">Select PDF</span>
+    </div>
+
+    <div class="options-card" id="opts" style="display:none">
+      <h3>Image Options</h3>
+      <div class="option-group">
+        <label>Quality / Scale</label>
+        <div class="range-row">
+          <input type="range" id="quality" min="1" max="4" value="2" step="0.5" />
+          <span class="range-val" id="qVal">2x</span>
+        </div>
+      </div>
+      <div class="option-group">
+        <label>Format</label>
+        <div class="radio-group" id="fmtGroup">
+          <label class="radio-btn selected"><input type="radio" name="fmt" value="jpeg" checked>JPG</label>
+          <label class="radio-btn"><input type="radio" name="fmt" value="png">PNG</label>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-process" id="btnConvert" disabled>🖼️ Convert to Images</button>
+    <div id="resultArea"></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="../js/utils.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    let currentFile = null;
+    const dropZone = document.getElementById('dropZone');
+    const btnConvert = document.getElementById('btnConvert');
+    const resultArea = document.getElementById('resultArea');
+    const workspace = document.getElementById('workspace');
+    const qSlider = document.getElementById('quality');
+    const qVal = document.getElementById('qVal');
+
+    qSlider.addEventListener('input', () => qVal.textContent = qSlider.value + 'x');
+
+    document.getElementById('fileInput').addEventListener('change', function() { if(this.files[0]) { currentFile = this.files[0]; enable(); } });
+    setupDropZone(dropZone, files => { if(files[0]) { currentFile = files[0]; enable(); } });
+
+    document.querySelectorAll('#fmtGroup .radio-btn').forEach(b => b.addEventListener('click', () => {
+      document.querySelectorAll('#fmtGroup .radio-btn').forEach(x => x.classList.remove('selected'));
+      b.classList.add('selected');
+    }));
+
+    function enable() {
+      document.getElementById('opts').style.display = 'block';
+      btnConvert.disabled = false;
+      dropZone.querySelector('h3').textContent = currentFile.name;
+    }
+
+    btnConvert.addEventListener('click', async () => {
+      if (!currentFile) return;
+      btnConvert.textContent = 'Converting…'; btnConvert.disabled = true;
+      resultArea.innerHTML = '';
+      try {
+        const scale = parseFloat(qSlider.value);
+        const fmt = document.querySelector('#fmtGroup .radio-btn.selected input').value;
+        const ext = fmt === 'jpeg' ? 'jpg' : 'png';
+        const bytes = await currentFile.arrayBuffer();
+        const pdfjs = await pdfjsLib.getDocument({ data: bytes }).promise;
+        const blobs = [];
+        for (let i = 1; i <= pdfjs.numPages; i++) {
+          const page = await pdfjs.getPage(i);
+          const vp = page.getViewport({ scale });
+          const canvas = document.createElement('canvas');
+          canvas.width = vp.width; canvas.height = vp.height;
+          await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+          const dataUrl = canvas.toDataURL(`image/${fmt}`, 0.95);
+          const res = await fetch(dataUrl);
+          const blob = await res.blob();
+          blobs.push({ blob, name: `page-${i}.${ext}` });
+        }
+        resultArea.innerHTML = `<div class="result-card">
+          <div class="result-icon">✅</div>
+          <h3>${blobs.length} image${blobs.length > 1?'s':''} ready!</h3>
+          <p>Click each page to download</p>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:16px">
+            ${blobs.map((b,i)=>`<button class="btn-download" onclick="dl(${i})" style="font-size:13px;padding:10px 18px">${b.name}</button>`).join('')}
+          </div>
+        </div>`;
+        window._imgs = blobs;
+        window.dl = i => downloadBlob(window._imgs[i].blob, window._imgs[i].name);
+        showToast('Converted!');
+      } catch(e) { showError(workspace, 'Error: ' + e.message); }
+      btnConvert.textContent = '🖼️ Convert to Images'; btnConvert.disabled = false;
+    });
+  </script>
+</body>
+</html>
