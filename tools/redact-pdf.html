@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Redact PDF — I Know PDF</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body class="tool-page">
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="logo"><span class="logo-mark">❖</span>I Know <span class="logo-accent">PDF</span></a>
+      <a href="../index.html" class="btn-header" style="margin-left:auto">← All Tools</a>
+    </div>
+  </header>
+  <div class="tool-hero">
+    <div class="tool-hero-icon">⬛</div>
+    <h1>Redact PDF</h1>
+    <p>Black out sensitive words or phrases from your PDF permanently.</p>
+  </div>
+  <div class="tool-workspace" id="workspace">
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept=".pdf" />
+      <div class="drop-icon">📄</div>
+      <h3>Drop your PDF here</h3>
+      <span class="drop-cta">Select PDF</span>
+    </div>
+    <div class="options-card" id="opts" style="display:none">
+      <h3>Redaction Options</h3>
+      <div class="option-group">
+        <label>Words/phrases to redact (one per line)</label>
+        <textarea id="redactWords" rows="5" style="width:100%;background:var(--bg,#f7f8fc);border:1.5px solid var(--border,#e2e4ef);border-radius:8px;padding:12px;font-family:monospace;font-size:13px;resize:vertical" placeholder="John Smith&#10;123-456-7890&#10;confidential@email.com"></textarea>
+      </div>
+      <div class="option-group">
+        <label>Redaction Color</label>
+        <div class="radio-group" id="colorGroup">
+          <label class="radio-btn selected"><input type="radio" name="col" value="black" checked>⬛ Black</label>
+          <label class="radio-btn"><input type="radio" name="col" value="white">⬜ White</label>
+        </div>
+      </div>
+    </div>
+    <button class="btn-process" id="btnRedact" disabled>⬛ Redact PDF</button>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="../js/utils.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    let currentFile=null;
+    const fileInput=document.getElementById('fileInput');
+    const dropZone=document.getElementById('dropZone');
+    const btnRedact=document.getElementById('btnRedact');
+    const workspace=document.getElementById('workspace');
+    document.querySelectorAll('.radio-btn').forEach(b=>b.addEventListener('click',()=>{b.closest('.radio-group').querySelectorAll('.radio-btn').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');}));
+    fileInput.addEventListener('change',()=>{if(fileInput.files[0])enable(fileInput.files[0]);});
+    dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('dragover');});
+    dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop',e=>{e.preventDefault();dropZone.classList.remove('dragover');const f=e.dataTransfer.files[0];if(f)enable(f);});
+    function enable(f){currentFile=f;document.getElementById('opts').style.display='block';btnRedact.disabled=false;dropZone.querySelector('h3').textContent=f.name;}
+
+    btnRedact.addEventListener('click', async ()=>{
+      if(!currentFile)return;
+      const words=document.getElementById('redactWords').value.split('\n').map(w=>w.trim()).filter(Boolean);
+      if(!words.length){showError(workspace,'Please enter words to redact');return;}
+      btnRedact.textContent='Redacting…';btnRedact.disabled=true;
+      try {
+        const bytes=await currentFile.arrayBuffer();
+        const pdfjs=await pdfjsLib.getDocument({data:bytes.slice()}).promise;
+        const {PDFDocument,rgb}=PDFLib;
+        const doc=await PDFDocument.load(bytes,{ignoreEncryption:true});
+        const colorVal=document.querySelector('#colorGroup .radio-btn.selected input').value;
+        const fillColor=colorVal==='black'?rgb(0,0,0):rgb(1,1,1);
+        let redactions=0;
+
+        for(let pi=1;pi<=pdfjs.numPages;pi++){
+          const page=await pdfjs.getPage(pi);
+          const content=await page.getTextContent();
+          const viewport=page.getViewport({scale:1});
+          const pdfPage=doc.getPages()[pi-1];
+          const {height}=pdfPage.getSize();
+          const scaleX=pdfPage.getSize().width/viewport.width;
+          const scaleY=height/viewport.height;
+
+          for(const item of content.items){
+            for(const word of words){
+              if(item.str.toLowerCase().includes(word.toLowerCase())){
+                const tx=item.transform;
+                const x=tx[4]*scaleX;
+                const y=height-(tx[5]*scaleY)-item.height*scaleY;
+                const w=item.width*scaleX;
+                const h=item.height*scaleY+4;
+                pdfPage.drawRectangle({x:x-1,y:y-2,width:w+2,height:h,color:fillColor});
+                redactions++;
+              }
+            }
+          }
+        }
+
+        const out=await doc.save();
+        const blob=new Blob([out],{type:'application/pdf'});
+        showResult(workspace,()=>downloadBlob(blob,'redacted.pdf'),`✅ ${redactions} redaction(s) applied!`,formatBytes(blob.size));
+        showToast(`${redactions} areas redacted!`);
+      }catch(e){showError(workspace,'Error: '+e.message);}
+      btnRedact.textContent='⬛ Redact PDF';btnRedact.disabled=false;
+    });
+  </script>
+</body>
+</html>
