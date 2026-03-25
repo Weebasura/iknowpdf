@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compare PDF — I Know PDF</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body class="tool-page">
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="logo"><span class="logo-mark">❖</span>I Know <span class="logo-accent">PDF</span></a>
+      <a href="../index.html" class="btn-header" style="margin-left:auto">← All Tools</a>
+    </div>
+  </header>
+  <div class="tool-hero">
+    <div class="tool-hero-icon">🔍</div>
+    <h1>Compare PDF</h1>
+    <p>Compare two PDF files side by side and highlight text differences.</p>
+  </div>
+  <div class="tool-workspace" id="workspace">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <p style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text-mid,#555)">📄 Original PDF</p>
+        <div class="drop-zone" id="dropZone1" style="padding:32px 16px">
+          <input type="file" id="fileInput1" accept=".pdf" />
+          <div class="drop-icon" style="font-size:32px">📄</div>
+          <h3 style="font-size:15px">Drop PDF 1</h3>
+          <span class="drop-cta" style="font-size:13px">Select</span>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text-mid,#555)">📄 Modified PDF</p>
+        <div class="drop-zone" id="dropZone2" style="padding:32px 16px">
+          <input type="file" id="fileInput2" accept=".pdf" />
+          <div class="drop-icon" style="font-size:32px">📄</div>
+          <h3 style="font-size:15px">Drop PDF 2</h3>
+          <span class="drop-cta" style="font-size:13px">Select</span>
+        </div>
+      </div>
+    </div>
+    <button class="btn-process" id="btnCompare" disabled>🔍 Compare PDFs</button>
+    <div id="resultArea"></div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="../js/utils.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    let file1=null,file2=null;
+    const btnCompare=document.getElementById('btnCompare');
+    const resultArea=document.getElementById('resultArea');
+    const workspace=document.getElementById('workspace');
+
+    function setupDrop(zoneId,inputId,num){
+      const zone=document.getElementById(zoneId);
+      const input=document.getElementById(inputId);
+      input.addEventListener('change',()=>{if(input.files[0]){if(num===1)file1=input.files[0];else file2=input.files[0];zone.querySelector('h3').textContent=input.files[0].name;checkReady();}});
+      zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('dragover');});
+      zone.addEventListener('dragleave',()=>zone.classList.remove('dragover'));
+      zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('dragover');const f=e.dataTransfer.files[0];if(f){if(num===1)file1=f;else file2=f;zone.querySelector('h3').textContent=f.name;checkReady();}});
+    }
+    setupDrop('dropZone1','fileInput1',1);
+    setupDrop('dropZone2','fileInput2',2);
+    function checkReady(){btnCompare.disabled=!(file1&&file2);}
+
+    async function extractText(file){
+      const bytes=await file.arrayBuffer();
+      const pdf=await pdfjsLib.getDocument({data:bytes}).promise;
+      let text='';
+      for(let i=1;i<=pdf.numPages;i++){
+        const page=await pdf.getPage(i);
+        const content=await page.getTextContent();
+        text+=content.items.map(i=>i.str).join(' ')+'\n';
+      }
+      return text;
+    }
+
+    function diffWords(a,b){
+      const wordsA=a.split(/\s+/);
+      const wordsB=b.split(/\s+/);
+      const setA=new Set(wordsA);
+      const setB=new Set(wordsB);
+      const added=wordsB.filter(w=>!setA.has(w)&&w.trim());
+      const removed=wordsA.filter(w=>!setB.has(w)&&w.trim());
+      return{added:[...new Set(added)],removed:[...new Set(removed)]};
+    }
+
+    btnCompare.addEventListener('click', async ()=>{
+      btnCompare.textContent='Comparing…';btnCompare.disabled=true;
+      try {
+        const [text1,text2]=await Promise.all([extractText(file1),extractText(file2)]);
+        const diff=diffWords(text1,text2);
+        const identical=diff.added.length===0&&diff.removed.length===0;
+        resultArea.innerHTML=`<div class="result-card" style="text-align:left">
+          <div class="result-icon" style="text-align:center">${identical?'✅':'🔍'}</div>
+          <h3 style="text-align:center">${identical?'Documents are identical!':'Differences Found'}</h3>
+          ${identical?'<p style="text-align:center">Both PDFs have the same text content.</p>':
+          `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+            <div style="background:#fff0f2;border:1px solid #ffd0d6;border-radius:8px;padding:16px">
+              <p style="font-weight:700;color:#e8314a;margin-bottom:8px">🔴 Removed (${diff.removed.length} words)</p>
+              <div style="font-size:13px;max-height:200px;overflow-y:auto">${diff.removed.slice(0,50).map(w=>`<span style="background:#ffd0d6;border-radius:4px;padding:2px 6px;margin:2px;display:inline-block">${w}</span>`).join('')}${diff.removed.length>50?`<p style="margin-top:8px;color:#888">...and ${diff.removed.length-50} more</p>`:''}</div>
+            </div>
+            <div style="background:#f0fff4;border:1px solid #b0e8c8;border-radius:8px;padding:16px">
+              <p style="font-weight:700;color:#1a8a44;margin-bottom:8px">🟢 Added (${diff.added.length} words)</p>
+              <div style="font-size:13px;max-height:200px;overflow-y:auto">${diff.added.slice(0,50).map(w=>`<span style="background:#b0e8c8;border-radius:4px;padding:2px 6px;margin:2px;display:inline-block">${w}</span>`).join('')}${diff.added.length>50?`<p style="margin-top:8px;color:#888">...and ${diff.added.length-50} more</p>`:''}</div>
+            </div>
+          </div>`}
+        </div>`;
+        showToast('Comparison done!');
+      }catch(e){showError(workspace,'Error: '+e.message);}
+      btnCompare.textContent='🔍 Compare PDFs';btnCompare.disabled=false;
+    });
+  </script>
+</body>
+</html>

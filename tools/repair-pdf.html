@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Repair PDF — I Know PDF</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body class="tool-page">
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="logo"><span class="logo-mark">❖</span>I Know <span class="logo-accent">PDF</span></a>
+      <a href="../index.html" class="btn-header" style="margin-left:auto">← All Tools</a>
+    </div>
+  </header>
+  <div class="tool-hero">
+    <div class="tool-hero-icon">🔧</div>
+    <h1>Repair PDF</h1>
+    <p>Fix corrupted or damaged PDF files by rebuilding the document structure.</p>
+  </div>
+  <div class="tool-workspace" id="workspace">
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept=".pdf" />
+      <div class="drop-icon">📄</div>
+      <h3>Drop your damaged PDF here</h3>
+      <span class="drop-cta">Select PDF</span>
+    </div>
+    <button class="btn-process" id="btnRepair" disabled>🔧 Repair PDF</button>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="../js/utils.js"></script>
+  <script>
+    let currentFile = null;
+    const fileInput = document.getElementById('fileInput');
+    const dropZone = document.getElementById('dropZone');
+    const btnRepair = document.getElementById('btnRepair');
+    const workspace = document.getElementById('workspace');
+    fileInput.addEventListener('change', () => { if(fileInput.files[0]){currentFile=fileInput.files[0];btnRepair.disabled=false;dropZone.querySelector('h3').textContent=currentFile.name;}});
+    dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('dragover');});
+    dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop',e=>{e.preventDefault();dropZone.classList.remove('dragover');const f=e.dataTransfer.files[0];if(f){currentFile=f;btnRepair.disabled=false;dropZone.querySelector('h3').textContent=f.name;}});
+    btnRepair.addEventListener('click', async () => {
+      if (!currentFile) return;
+      btnRepair.textContent = 'Repairing…'; btnRepair.disabled = true;
+      try {
+        const bytes = await currentFile.arrayBuffer();
+        const doc = await PDFLib.PDFDocument.load(bytes, { ignoreEncryption: true, throwOnInvalidObject: false });
+        const out = await doc.save();
+        const blob = new Blob([out], {type:'application/pdf'});
+        showResult(workspace, ()=>downloadBlob(blob,'repaired.pdf'), '🔧 PDF Repaired!', `${doc.getPageCount()} pages recovered · ${formatBytes(blob.size)}`);
+        showToast('PDF repaired!');
+      } catch(e) { showError(workspace, 'Could not repair: ' + e.message); }
+      btnRepair.textContent = '🔧 Repair PDF'; btnRepair.disabled = false;
+    });
+  </script>
+</body>
+</html>

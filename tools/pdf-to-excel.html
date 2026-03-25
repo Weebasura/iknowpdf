@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF to Excel — I Know PDF</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body class="tool-page">
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="logo"><span class="logo-mark">❖</span>I Know <span class="logo-accent">PDF</span></a>
+      <a href="../index.html" class="btn-header" style="margin-left:auto">← All Tools</a>
+    </div>
+  </header>
+  <div class="tool-hero">
+    <div class="tool-hero-icon">📗</div>
+    <h1>PDF to Excel</h1>
+    <p>Extract text from PDF and export as a .xlsx spreadsheet file.</p>
+  </div>
+  <div class="tool-workspace" id="workspace">
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept=".pdf" />
+      <div class="drop-icon">📄</div>
+      <h3>Drop your PDF here</h3>
+      <span class="drop-cta">Select PDF</span>
+    </div>
+    <button class="btn-process" id="btnConvert" disabled>📗 Convert to Excel</button>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="../js/utils.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    let currentFile=null;
+    const fileInput=document.getElementById('fileInput');
+    const dropZone=document.getElementById('dropZone');
+    const btnConvert=document.getElementById('btnConvert');
+    const workspace=document.getElementById('workspace');
+    fileInput.addEventListener('change',()=>{if(fileInput.files[0]){currentFile=fileInput.files[0];btnConvert.disabled=false;dropZone.querySelector('h3').textContent=currentFile.name;}});
+    dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('dragover');});
+    dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop',e=>{e.preventDefault();dropZone.classList.remove('dragover');const f=e.dataTransfer.files[0];if(f){currentFile=f;btnConvert.disabled=false;dropZone.querySelector('h3').textContent=f.name;}});
+
+    btnConvert.addEventListener('click', async ()=>{
+      if(!currentFile)return;
+      btnConvert.textContent='Converting…';btnConvert.disabled=true;
+      try {
+        const bytes=await currentFile.arrayBuffer();
+        const pdf=await pdfjsLib.getDocument({data:bytes}).promise;
+        const wb=XLSX.utils.book_new();
+        for(let i=1;i<=pdf.numPages;i++){
+          const page=await pdf.getPage(i);
+          const content=await page.getTextContent();
+          const lines=[];
+          let lastY=null;
+          let currentLine=[];
+          for(const item of content.items){
+            if(lastY!==null&&Math.abs(item.transform[5]-lastY)>5){
+              if(currentLine.length)lines.push([currentLine.join(' ')]);
+              currentLine=[];
+            }
+            currentLine.push(item.str);
+            lastY=item.transform[5];
+          }
+          if(currentLine.length)lines.push([currentLine.join(' ')]);
+          const ws=XLSX.utils.aoa_to_sheet(lines);
+          XLSX.utils.book_append_sheet(wb,ws,`Page ${i}`);
+        }
+        const out=XLSX.write(wb,{bookType:'xlsx',type:'array'});
+        const blob=new Blob([out],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+        showResult(workspace,()=>downloadBlob(blob,'converted.xlsx'),`✅ ${pdf.numPages} pages extracted!`,formatBytes(blob.size));
+        showToast('Converted to Excel!');
+      }catch(e){showError(workspace,'Error: '+e.message);}
+      btnConvert.textContent='📗 Convert to Excel';btnConvert.disabled=false;
+    });
+  </script>
+</body>
+</html>
