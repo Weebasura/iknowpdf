@@ -1,158 +1,253 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>I Know PDF — Free Online PDF Tools</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>I Know PDF — Free Browser PDF Tools</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/iknowpdf/css/style.css" />
 </head>
 <body>
+
+  <!-- HEADER -->
   <header class="site-header">
     <div class="header-inner">
-      <a href="index.html" class="logo"><span class="logo-mark">❖</span>I Know <span class="logo-accent">PDF</span></a>
+      <a href="index.html" class="logo">
+        <span class="logo-icon">⬡</span>
+        I Know <span class="logo-accent">PDF</span>
+      </a>
       <nav class="site-nav">
         <a href="#organize">Organize</a>
+        <a href="#convert">Convert</a>
         <a href="#optimize">Optimize</a>
-        <a href="#convert-to">Convert</a>
-        <a href="#edit">Edit</a>
         <a href="#security">Security</a>
-        <a href="#ai">AI</a>
       </nav>
-      <a href="#tools" class="btn-header">All Tools</a>
+      <a href="#tools" class="btn-nav">All Tools</a>
     </div>
   </header>
 
+  <!-- HERO -->
   <section class="hero">
-    <div class="hero-blobs"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
-    <div class="hero-grid-lines"></div>
-    <div class="hero-content">
-      <div class="hero-pill">✦ 100% Free &nbsp;·&nbsp; No Uploads &nbsp;·&nbsp; Runs in Your Browser</div>
-      <h1>Your PDF.<br><em>Your Rules.</em></h1>
-      <p class="hero-desc">Every tool you need — merge, split, convert, sign, compress, translate and more. All in your browser. Free forever.</p>
-      <a href="#tools" class="btn-primary">Explore All Tools ↓</a>
+    <div class="hero-bg">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+      <div class="grid-overlay"></div>
     </div>
-    <div class="hero-cards">
-      <div class="hcard hc1"><span>🔀</span> Merge PDF</div>
-      <div class="hcard hc2"><span>✍️</span> Sign PDF</div>
-      <div class="hcard hc3"><span>🤖</span> AI Summary</div>
-      <div class="hcard hc4"><span>🔒</span> Protect PDF</div>
-      <div class="hcard hc5"><span>🌍</span> Translate</div>
-      <div class="hcard hc6"><span>🔍</span> OCR PDF</div>
+    <div class="hero-content">
+      <div class="hero-badge">100% Free · No Uploads · Runs in Your Browser</div>
+      <h1 class="hero-title">Your PDF.<br /><em>Your Rules.</em></h1>
+      <p class="hero-sub">Every tool you need to work with PDFs — entirely in your browser. No servers. No sign-up. No nonsense.</p>
+      <a href="#tools" class="btn-primary">Explore Tools ↓</a>
+    </div>
+    <div class="hero-visual">
+      <div class="floating-card card-a">
+        <div class="fc-icon">🔀</div>
+        <div class="fc-label">Merge PDF</div>
+      </div>
+      <div class="floating-card card-b">
+        <div class="fc-icon">✂️</div>
+        <div class="fc-label">Split PDF</div>
+      </div>
+      <div class="floating-card card-c">
+        <div class="fc-icon">🖼️</div>
+        <div class="fc-label">PDF to JPG</div>
+      </div>
+      <div class="floating-card card-d">
+        <div class="fc-icon">🔒</div>
+        <div class="fc-label">Protect PDF</div>
+      </div>
     </div>
   </section>
 
-  <main class="tools-section" id="tools">
-    <div class="wrap">
+  <!-- TOOLS GRID -->
+  <section class="tools-section" id="tools">
+    <div class="container">
 
-      <!-- ORGANIZE -->
-      <div class="cat-header" id="organize">
-        <span class="cat-tag">Organize</span>
-        <h2>Organize PDF</h2>
+      <div class="section-header" id="organize">
+        <div class="section-tag">Organize</div>
+        <h2>PDF Organization</h2>
       </div>
       <div class="tools-grid">
-        <a href="tools/merge.html" class="tcard"><div class="tcard-icon" style="background:#e8f0ff">🔀</div><div class="tcard-body"><h3>Merge PDF</h3><p>Combine multiple PDFs into one</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/split.html" class="tcard"><div class="tcard-icon" style="background:#f0e8ff">✂️</div><div class="tcard-body"><h3>Split PDF</h3><p>Split into multiple files</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/delete-pages.html" class="tcard"><div class="tcard-icon" style="background:#ffe8e8">🗑️</div><div class="tcard-body"><h3>Remove Pages</h3><p>Delete unwanted pages</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/extract-pages.html" class="tcard"><div class="tcard-icon" style="background:#e8fff2">📤</div><div class="tcard-body"><h3>Extract Pages</h3><p>Pull specific pages into new PDF</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/reorder.html" class="tcard"><div class="tcard-icon" style="background:#e8faff">↕️</div><div class="tcard-body"><h3>Organize PDF</h3><p>Drag & drop to reorder pages</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/viewer.html" class="tcard"><div class="tcard-icon" style="background:#f5f5ff">👁️</div><div class="tcard-body"><h3>Scan to PDF</h3><p>View & save any PDF in browser</p></div><div class="tcard-arr">→</div></a>
+        <a href="/iknowpdf/tools/merge.html" class="tool-card" data-color="blue">
+          <div class="tool-icon">🔀</div>
+          <div class="tool-info">
+            <h3>Merge PDF</h3>
+            <p>Combine multiple PDFs into one file</p>
+          </div>
+          <div class="tool-arrow">→</div>
+        </a>
+        <a href="/iknowpdf/tools/split.html" class="tool-card" data-color="purple">
+          <div class="tool-icon">✂️</div>
+          <div class="tool-info">
+            <h3>Split PDF</h3>
+            <p>Split a PDF into multiple files</p>
+          </div>
+          <div class="tool-arrow">→</div>
+        </a>
+        <a href="/iknowpdf/tools/delete-pages.html" class="tool-card" data-color="red">
+          <div class="tool-icon">🗑️</div>
+          <div class="tool-info">
+            <h3>Delete Pages</h3>
+            <p>Remove unwanted pages from a PDF</p>
+          </div>
+          <div class="tool-arrow">→</div>
+        </a>
+        <a href="/iknowpdf/tools/extract-pages.html" class="tool-card" data-color="green">
+          <div class="tool-icon">📤</div>
+          <div class="tool-info">
+            <h3>Extract Pages</h3>
+            <p>Extract specific pages into a new PDF</p>
+          </div>
+          <div class="tool-arrow">→</div>
+        </a>
+        <a href="/iknowpdf/tools/rotate.html" class="tool-card" data-color="orange">
+          <div class="tool-icon">🔄</div>
+          <div class="tool-info">
+            <h3>Rotate Pages</h3>
+            <p>Rotate one or all pages of a PDF</p>
+          </div>
+          <div class="tool-arrow">→</div>
+        </a>
+        <a href="/iknowpdf/tools/reorder.html" class="tool-card" data-color="teal">
+          <div class="tool-icon">↕️</div>
+          <div class="tool-info">
+            <h3>Reorder Pages</h3>
+            <p>Drag and drop to rearrange pages</p>
+          </div>
+          <div class="tool-arrow">→</div>
+        </a>
       </div>
 
-      <!-- OPTIMIZE -->
-      <div class="cat-header" id="optimize">
-        <span class="cat-tag" style="background:#f0fff0;color:#1a9a3a;border-color:#b0e8b0">Optimize</span>
-        <h2>Optimize PDF</h2>
+      <div class="section-header" id="convert">
+        <div class="section-tag">Convert</div>
+        <h2>PDF Conversion</h2>
       </div>
       <div class="tools-grid">
-        <a href="tools/compress.html" class="tcard"><div class="tcard-icon" style="background:#f0fff0">🗜️</div><div class="tcard-body"><h3>Compress PDF</h3><p>Reduce file size significantly</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/repair-pdf.html" class="tcard"><div class="tcard-icon" style="background:#fff5e8">🔧</div><div class="tcard-body"><h3>Repair PDF</h3><p>Fix corrupted PDF files</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/ocr-pdf.html" class="tcard"><div class="tcard-icon" style="background:#e8f8ff">🔍</div><div class="tcard-body"><h3>OCR PDF</h3><p>Extract text from scanned PDFs</p></div><div class="tcard-arr">→</div></a>
+        <a href="/iknowpdf/tools/pdf-to-jpg.html" class="tool-card" data-color="yellow">
+          <div class="tool-icon">🖼️</div>
+          <div class="tool-info">
+            <h3>PDF to JPG</h3>
+            <p>Convert PDF pages to JPG images</p>
+          </div>
+          <div class="tool-arrow">→</div>
+        </a>
+        <a href="/iknowpdf/tools/jpg-to-pdf.html" class="tool-card" data-color="pink">
+          <div class="tool-icon">📄</div>
+          <div class="tool-info">
+            <h3>JPG to PDF</h3>
+            <p>Convert images into a PDF file</p>
+          </div>
+          <div class="tool-arrow">→</div>
+        </a>
+        <a href="/iknowpdf/tools/pdf-to-text.html" class="tool-card" data-color="indigo">
+          <div class="tool-icon">📝</div>
+          <div class="tool-info">
+            <h3>PDF to Text</h3>
+            <p>Extract all text from a PDF</p>
+          </div>
+          <div class="tool-arrow">→</div>
+        </a>
+        <a href="/iknowpdf/tools/pdf-to-html.html" class="tool-card" data-color="cyan">
+          <div class="tool-icon">🌐</div>
+          <div class="tool-info">
+            <h3>PDF to HTML</h3>
+            <p>Convert a PDF to an HTML page</p>
+          </div>
+          <div class="tool-arrow">→</div>
+        </a>
       </div>
 
-      <!-- CONVERT TO PDF -->
-      <div class="cat-header" id="convert-to">
-        <span class="cat-tag" style="background:#fff0fa;color:#d63aaa;border-color:#f8c0ea">Convert to PDF</span>
-        <h2>Convert to PDF</h2>
+      <div class="section-header" id="optimize">
+        <div class="section-tag">Optimize</div>
+        <h2>PDF Optimization</h2>
       </div>
       <div class="tools-grid">
-        <a href="tools/jpg-to-pdf.html" class="tcard"><div class="tcard-icon" style="background:#ffe8f5">🖼️</div><div class="tcard-body"><h3>JPG to PDF</h3><p>Images to PDF document</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/word-to-pdf.html" class="tcard"><div class="tcard-icon" style="background:#e8f0ff">📘</div><div class="tcard-body"><h3>Word to PDF</h3><p>Convert .docx files to PDF</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/pptx-to-pdf.html" class="tcard"><div class="tcard-icon" style="background:#fff5e8">📊</div><div class="tcard-body"><h3>PowerPoint to PDF</h3><p>Convert .pptx slides to PDF</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/excel-to-pdf.html" class="tcard"><div class="tcard-icon" style="background:#e8fff0">📗</div><div class="tcard-body"><h3>Excel to PDF</h3><p>Convert spreadsheets to PDF</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/html-to-pdf.html" class="tcard"><div class="tcard-icon" style="background:#e8fffd">🌐</div><div class="tcard-body"><h3>HTML to PDF</h3><p>Convert web pages to PDF</p></div><div class="tcard-arr">→</div></a>
+        <a href="/iknowpdf/tools/compress.html" class="tool-card" data-color="lime">
+          <div class="tool-icon">🗜️</div>
+          <div class="tool-info">
+            <h3>Compress PDF</h3>
+            <p>Reduce PDF file size significantly</p>
+          </div>
+          <div class="tool-arrow">→</div>
+        </a>
+        <a href="/iknowpdf/tools/viewer.html" class="tool-card" data-color="slate">
+          <div class="tool-icon">👁️</div>
+          <div class="tool-info">
+            <h3>View PDF</h3>
+            <p>Open and read any PDF in browser</p>
+          </div>
+          <div class="tool-arrow">→</div>
+        </a>
       </div>
 
-      <!-- CONVERT FROM PDF -->
-      <div class="cat-header" id="convert-from">
-        <span class="cat-tag" style="background:#fffbe8;color:#b8860b;border-color:#f0d060">Convert from PDF</span>
-        <h2>Convert from PDF</h2>
-      </div>
-      <div class="tools-grid">
-        <a href="tools/pdf-to-jpg.html" class="tcard"><div class="tcard-icon" style="background:#fffbe8">🖼️</div><div class="tcard-body"><h3>PDF to JPG</h3><p>PDF pages to JPG images</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/pdf-to-word.html" class="tcard"><div class="tcard-icon" style="background:#eeeeff">📘</div><div class="tcard-body"><h3>PDF to Word</h3><p>Convert PDF to .docx file</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/pdf-to-pptx.html" class="tcard"><div class="tcard-icon" style="background:#fff0fa">📊</div><div class="tcard-body"><h3>PDF to PowerPoint</h3><p>Convert PDF pages to slides</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/pdf-to-excel.html" class="tcard"><div class="tcard-icon" style="background:#f0fff0">📗</div><div class="tcard-body"><h3>PDF to Excel</h3><p>Extract PDF data to spreadsheet</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/pdf-to-text.html" class="tcard"><div class="tcard-icon" style="background:#f5f5ff">📋</div><div class="tcard-body"><h3>PDF to Text</h3><p>Extract all text from PDF</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/pdf-to-html.html" class="tcard"><div class="tcard-icon" style="background:#e8fffd">🌐</div><div class="tcard-body"><h3>PDF to HTML</h3><p>Convert PDF to web page</p></div><div class="tcard-arr">→</div></a>
-      </div>
-
-      <!-- EDIT -->
-      <div class="cat-header" id="edit">
-        <span class="cat-tag" style="background:#fff0e8;color:#c05010;border-color:#f0c090">Edit</span>
-        <h2>Edit PDF</h2>
-      </div>
-      <div class="tools-grid">
-        <a href="tools/rotate.html" class="tcard"><div class="tcard-icon" style="background:#fff5e8">🔄</div><div class="tcard-body"><h3>Rotate PDF</h3><p>Fix page orientation</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/add-page-numbers.html" class="tcard"><div class="tcard-icon" style="background:#e8f8ff">🔢</div><div class="tcard-body"><h3>Add Page Numbers</h3><p>Stamp numbers on every page</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/watermark.html" class="tcard"><div class="tcard-icon" style="background:#e8f0ff">💧</div><div class="tcard-body"><h3>Add Watermark</h3><p>Add text watermark to all pages</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/crop-pdf.html" class="tcard"><div class="tcard-icon" style="background:#fff0fa">✂️</div><div class="tcard-body"><h3>Crop PDF</h3><p>Crop margins on all pages</p></div><div class="tcard-arr">→</div></a>
-      </div>
-
-      <!-- SECURITY -->
-      <div class="cat-header" id="security">
-        <span class="cat-tag" style="background:#f0e8ff;color:#7c3aed;border-color:#d0b0f8">Security</span>
+      <div class="section-header" id="security">
+        <div class="section-tag">Security</div>
         <h2>PDF Security</h2>
       </div>
       <div class="tools-grid">
-        <a href="tools/unlock.html" class="tcard"><div class="tcard-icon" style="background:#efffef">🔓</div><div class="tcard-body"><h3>Unlock PDF</h3><p>Remove password protection</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/protect.html" class="tcard"><div class="tcard-icon" style="background:#fff0e8">🔒</div><div class="tcard-body"><h3>Protect PDF</h3><p>Add password to your PDF</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/sign-pdf.html" class="tcard"><div class="tcard-icon" style="background:#e8f0ff">✍️</div><div class="tcard-body"><h3>Sign PDF</h3><p>Draw & stamp your signature</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/redact-pdf.html" class="tcard"><div class="tcard-icon" style="background:#ffe8e8">⬛</div><div class="tcard-body"><h3>Redact PDF</h3><p>Black out sensitive information</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/compare-pdf.html" class="tcard"><div class="tcard-icon" style="background:#f5f5ff">🔍</div><div class="tcard-body"><h3>Compare PDF</h3><p>Find differences between two PDFs</p></div><div class="tcard-arr">→</div></a>
-      </div>
-
-      <!-- AI -->
-      <div class="cat-header" id="ai">
-        <span class="cat-tag" style="background:#e8f0ff;color:#1a4adc;border-color:#a0c0f8">🤖 AI Intelligence</span>
-        <h2>PDF Intelligence</h2>
-      </div>
-      <div class="tools-grid">
-        <a href="tools/ai-summarizer.html" class="tcard"><div class="tcard-icon" style="background:#e8f0ff">🤖</div><div class="tcard-body"><h3>AI Summarizer</h3><p>Get instant AI summary of any PDF</p></div><div class="tcard-arr">→</div></a>
-        <a href="tools/translate-pdf.html" class="tcard"><div class="tcard-icon" style="background:#e8fffd">🌍</div><div class="tcard-body"><h3>Translate PDF</h3><p>Translate PDF to any language with AI</p></div><div class="tcard-arr">→</div></a>
+        <a href="/iknowpdf/tools/protect.html" class="tool-card" data-color="red">
+          <div class="tool-icon">🔒</div>
+          <div class="tool-info">
+            <h3>Protect PDF</h3>
+            <p>Add password protection to your PDF</p>
+          </div>
+          <div class="tool-arrow">→</div>
+        </a>
+        <a href="/iknowpdf/tools/unlock.html" class="tool-card" data-color="green">
+          <div class="tool-icon">🔓</div>
+          <div class="tool-info">
+            <h3>Unlock PDF</h3>
+            <p>Remove password from a PDF file</p>
+          </div>
+          <div class="tool-arrow">→</div>
+        </a>
       </div>
 
     </div>
-  </main>
+  </section>
 
+  <!-- WHY SECTION -->
   <section class="why-section">
-    <div class="wrap">
+    <div class="container">
       <h2 class="why-title">Why I Know PDF?</h2>
       <div class="why-grid">
-        <div class="why-card"><div class="why-ico">🔐</div><h3>100% Private</h3><p>Files never leave your device. All processing in your browser.</p></div>
-        <div class="why-card"><div class="why-ico">⚡</div><h3>Blazing Fast</h3><p>No upload waiting. Instant processing on your hardware.</p></div>
-        <div class="why-card"><div class="why-ico">🆓</div><h3>Always Free</h3><p>No subscriptions, no limits, no fees. Free forever.</p></div>
-        <div class="why-card"><div class="why-ico">📱</div><h3>Works Everywhere</h3><p>Desktop, tablet, mobile — any browser, any device.</p></div>
+        <div class="why-card">
+          <div class="why-icon">🔐</div>
+          <h3>100% Private</h3>
+          <p>Your files never leave your device. All processing happens inside your browser.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">⚡</div>
+          <h3>Blazing Fast</h3>
+          <p>No upload waiting. Processing starts instantly on your own hardware.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">🆓</div>
+          <h3>Always Free</h3>
+          <p>No subscriptions, no limits, no hidden fees. Free forever, open source.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">📱</div>
+          <h3>Works Everywhere</h3>
+          <p>Desktop, tablet, mobile — any modern browser on any device.</p>
+        </div>
       </div>
     </div>
   </section>
 
+  <!-- FOOTER -->
   <footer class="site-footer">
-    <div class="wrap footer-inner">
-      <div class="logo"><span class="logo-mark">❖</span>I Know <span class="logo-accent">PDF</span></div>
-      <p>Built with pdf-lib &amp; PDF.js · Open Source · No servers · Your files stay on your device</p>
+    <div class="footer-inner">
+      <div class="logo">
+        <span class="logo-icon">⬡</span>
+        I Know <span class="logo-accent">PDF</span>
+      </div>
+      <p class="footer-note">Built with ❤️ using pdf-lib and PDF.js · Open Source · No servers</p>
+      <p class="footer-sub">Your files are processed entirely in your browser and never uploaded anywhere.</p>
     </div>
   </footer>
-  <script src="js/header.js"></script>
+
 </body>
 </html>

@@ -5,70 +5,70 @@
   <title>Merge PDF — I Know PDF</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="/iknowpdf/css/style.css" />
 </head>
 <body class="tool-page">
   <header class="site-header">
     <div class="header-inner">
-      <a href="../index.html" class="logo"><span class="logo-mark">❖</span>I Know <span class="logo-accent">PDF</span></a>
-      <a href="../index.html" class="btn-header" style="margin-left:auto">← All Tools</a>
+      <a href="/iknowpdf/index.html" class="logo"><span class="logo-icon">⬡</span>I Know <span class="logo-accent">PDF</span></a>
     </div>
   </header>
+
   <div class="tool-hero">
+    <a href="/iknowpdf/index.html" class="back-link">← All Tools</a>
     <div class="tool-hero-icon">🔀</div>
     <h1>Merge PDF</h1>
-    <p>Combine multiple PDF files into one. Add as many as you want!</p>
+    <p>Combine multiple PDF files into one. Drag to reorder before merging.</p>
   </div>
+
   <div class="tool-workspace" id="workspace">
     <div class="drop-zone" id="dropZone">
       <input type="file" id="fileInput" multiple accept=".pdf" />
       <div class="drop-icon">📂</div>
       <h3>Drop your PDF files here</h3>
-      <p>Select 2 or more PDF files</p>
+      <p>or click to browse your files</p>
       <span class="drop-cta">Select PDFs</span>
     </div>
     <div class="file-list" id="fileList"></div>
     <button class="btn-process" id="btnMerge" disabled>🔀 Merge PDFs</button>
   </div>
+
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-  <script src="../js/utils.js"></script>
+  <script src="/iknowpdf/js/utils.js"></script>
   <script>
-    let fileMap = [];
+    const files = [];
     const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('fileInput');
     const fileList = document.getElementById('fileList');
     const btnMerge = document.getElementById('btnMerge');
     const workspace = document.getElementById('workspace');
 
-    fileInput.addEventListener('click', () => { fileInput.value = ''; });
-    fileInput.addEventListener('change', () => { if(fileInput.files.length) addFiles(Array.from(fileInput.files)); });
-    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-    dropZone.addEventListener('drop', e => {
-      e.preventDefault(); dropZone.classList.remove('dragover');
-      addFiles(Array.from(e.dataTransfer.files).filter(f => f.name.endsWith('.pdf')));
+    document.getElementById('fileInput').addEventListener('change', function() {
+      addFiles(Array.from(this.files));
     });
 
+    setupDropZone(dropZone, addFiles, true, '.pdf');
+
     function addFiles(newFiles) {
-      newFiles.forEach(f => {
-        if (f.type === 'application/pdf' || f.name.endsWith('.pdf')) {
-          const id = Date.now() + Math.random();
-          fileMap.push({ id, file: f });
-          const item = createFileItem(f, () => { fileMap = fileMap.filter(x => x.id !== id); updateBtn(); });
-          fileList.appendChild(item);
-        }
+      newFiles.filter(f => f.type === 'application/pdf' || f.name.endsWith('.pdf')).forEach(f => {
+        files.push(f);
+        fileList.appendChild(createFileItem(f, updateBtn));
       });
       updateBtn();
     }
-    function updateBtn() { btnMerge.disabled = fileMap.length < 2; }
+
+    function updateBtn() {
+      const items = fileList.querySelectorAll('.file-item');
+      btnMerge.disabled = items.length < 2;
+    }
 
     btnMerge.addEventListener('click', async () => {
-      if (fileMap.length < 2) return;
+      const items = fileList.querySelectorAll('.file-item .file-name');
+      if (files.length < 2) return;
       btnMerge.textContent = 'Merging…'; btnMerge.disabled = true;
       try {
         const { PDFDocument } = PDFLib;
         const merged = await PDFDocument.create();
-        for (const { file } of fileMap) {
+        for (const file of files) {
           const bytes = await file.arrayBuffer();
           const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
           const pages = await merged.copyPages(doc, doc.getPageIndices());
@@ -76,9 +76,11 @@
         }
         const out = await merged.save();
         const blob = new Blob([out], { type: 'application/pdf' });
-        showResult(workspace, () => downloadBlob(blob, 'merged.pdf'), 'Merged Successfully!', `${fileMap.length} files combined · ${formatBytes(blob.size)}`);
-        showToast('PDFs merged!');
-      } catch(e) { showError(workspace, e.message); }
+        showResult(workspace, () => downloadBlob(blob, 'merged.pdf'), '✅ Merged!', `Combined ${files.length} files · ${formatBytes(blob.size)}`);
+        showToast('PDF merged successfully!');
+      } catch (e) {
+        showError(workspace, 'Error merging: ' + e.message);
+      }
       btnMerge.textContent = '🔀 Merge PDFs'; btnMerge.disabled = false;
     });
   </script>
