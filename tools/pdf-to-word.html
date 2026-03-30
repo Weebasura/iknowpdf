@@ -59,7 +59,7 @@
           paragraphs.push(''); // page break spacing
         }
         // Build simple .docx using docx library
-        const { Document, Paragraph, TextRun, Packer } = docx;
+        const { Document, Paragraph, TextRun, Packer } = window.docx;
         const doc = new Document({
           sections: [{
             properties: {},
