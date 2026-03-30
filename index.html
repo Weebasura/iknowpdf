@@ -6,6 +6,22 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
+  <style>
+body { --accent:#e8314a; --accent2:#c4283f; --bg:#f7f8fc; --surface:#fff; --border:#e2e4ef; --text:#1a1a2e; --text-mid:#555577; --text-light:#8888aa; }
+body.dark { background:#0a0a0f!important; color:#e8e8f0!important; --accent:#7c6fff; --accent2:#ff6b9d; --bg:#0a0a0f; --surface:#1e1e2e; --border:rgba(255,255,255,0.08); --text:#e8e8f0; --text-mid:#9999bb; --text-light:#666688; }
+body.dark .site-header { background:#12121a!important; border-color:rgba(255,255,255,0.08)!important; }
+body.dark .tcard { background:#1e1e2e!important; border-color:rgba(255,255,255,0.08)!important; color:#e8e8f0!important; }
+body.dark .tcard-body h3 { color:#e8e8f0!important; }
+body.dark .tcard-body p { color:#666688!important; }
+body.dark .why-section { background:#12121a!important; }
+body.dark .why-card { background:#0a0a0f!important; border-color:rgba(255,255,255,0.08)!important; }
+body.dark .why-card h3, body.dark .why-card p { color:#e8e8f0!important; }
+body.dark .site-footer { background:#0a0a0f!important; }
+body.dark .tools-section { background:#0a0a0f!important; }
+body.dark .hero { background:#0a0a0f!important; }
+body.dark .hcard { background:#1e1e2e!important; border-color:rgba(255,255,255,0.08)!important; color:#e8e8f0!important; }
+body.dark .cat-header h2 { color:#e8e8f0!important; }
+</style>
 </head>
 <body>
   <header class="site-header">
@@ -153,5 +169,34 @@
       <p>Built with pdf-lib &amp; PDF.js · Open Source · No servers · Your files stay on your device</p>
     </div>
   </footer>
+  <script>
+(function(){
+  const saved = localStorage.getItem('ikp_theme') || 'light';
+  document.body.classList.add(saved);
+  
+  function addToggle() {
+    const header = document.querySelector('.header-inner');
+    if (!header) return;
+    const btn = document.createElement('button');
+    btn.id = 'themeBtn';
+    btn.style.cssText = 'background:none;border:1.5px solid var(--border);border-radius:100px;padding:7px 16px;cursor:pointer;font-size:14px;color:var(--text);margin-left:8px;font-family:inherit;transition:all 0.2s';
+    btn.textContent = saved === 'dark' ? '☀️ Light' : '🌙 Dark';
+    header.appendChild(btn);
+    btn.addEventListener('click', function(){
+      const isDark = document.body.classList.contains('dark');
+      document.body.classList.toggle('dark');
+      document.body.classList.toggle('light');
+      localStorage.setItem('ikp_theme', isDark ? 'light' : 'dark');
+      btn.textContent = isDark ? '🌙 Dark' : '☀️ Light';
+    });
+  }
+  
+  if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', addToggle);
+  } else {
+    addToggle();
+  }
+})();
+</script>
 </body>
 </html>
